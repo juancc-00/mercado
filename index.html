@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mercado de Intercambios</title>
+  </head>
+  <body>
+    <div style="text-align: center; margin-top: 50px; font-family: sans-serif;">
+      <h1>Mercado de Intercambios</h1>
+      
+      <!-- SECCIÓN 1: Visitante (No logueado) -->
+      <div id="login-section">
+        <button id="btn-login" style="padding: 10px 20px; font-size: 16px; cursor: pointer;">
+          Entrar con Google
+        </button>
+      </div>
+
+      <!-- SECCIÓN 2: Usuario (Menú principal) -->
+      <div id="user-panel" style="display: none; background: #f4f4f4; padding: 20px; border-radius: 8px; max-width: 400px; margin: 0 auto;">
+        <h2 id="user-name"></h2>
+        
+        <div style="margin: 20px 0;">
+          <button id="btn-create-room" style="padding: 10px; background: #4CAF50; color: white; border: none; cursor: pointer;">Crear nueva sala</button>
+          <button id="btn-join-room" style="padding: 10px; background: #2196F3; color: white; border: none; cursor: pointer;">Unirse a sala</button>
+        </div>
+
+        <button id="btn-logout" style="padding: 5px 10px; font-size: 12px; cursor: pointer; color: red;">
+          Cerrar sesión
+        </button>
+      </div>
+
+      <!-- SECCIÓN 3: Dentro de la Sala -->
+      <div id="room-panel" style="display: none; background: #e3f2fd; padding: 20px; border-radius: 8px; max-width: 600px; margin: 0 auto;">
+        <button id="btn-leave-room" style="float: right; cursor: pointer; padding: 5px; color: #555;">Salir al menú</button>
+        <h2 id="room-title">Sala: ...</h2>
+        <p>Código de invitación: <strong id="room-code-display" style="font-size: 1.2em; background: #fff; padding: 5px; border-radius: 4px;"></strong></p>
+        <hr style="border: 1px solid #bbdefb; margin: 20px 0;">
+        
+        <!-- En el futuro, aquí irán los productos -->
+        <h3>Mi Stand</h3>
+        <button disabled style="padding: 8px;">Añadir Producto (Próximamente...)</button>
+      </div>
+
+    </div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
