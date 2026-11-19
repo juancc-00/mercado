@@ -3,6 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="/favicon.png" type="image/x-icon">
     <title>Mercado de Intercambios</title>
     <style>
       body { font-family: sans-serif; margin: 0; padding: 20px; background: #f5f7fa; color: #333; }
@@ -67,6 +68,68 @@
       .form-row input[type="text"] { flex: 1; padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
       .slider-group { flex: 1; min-width: 200px; background: #f9f9f9; padding: 8px; border-radius: 4px; }
       .slider-group input[type="range"] { width: 100%; }
+
+      /* Estados del Kanban en Modo Oferta */
+      .kanban-column.dimmed { opacity: 0.35; pointer-events: none; transition: opacity 0.2s; }
+      .kanban-column.selectable-col { cursor: pointer; border: 2px dashed #673ab7; background: #ede7f6; }
+      .kanban-column.selectable-col:hover { background: #d1c4e9; }
+      .kanban-column.active-trade-col { border: 2px solid #673ab7; box-shadow: 0 0 12px rgba(103, 58, 183, 0.25); }
+
+      /* Botón + en la esquina superior derecha de cada Card */
+      .btn-select-item {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        width: 26px;
+        height: 26px;
+        border-radius: 50%;
+        border: none;
+        background: #673ab7;
+        color: white;
+        font-weight: bold;
+        font-size: 16px;
+        line-height: 1;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .item-card.selected-card { border: 2px solid #4CAF50; background: #f1f8e9; }
+      .item-card.selected-card .btn-select-item { background: #4CAF50; }
+
+      /* Barra de pasos para crear oferta */
+      #trade-builder-bar {
+        background: #ede7f6;
+        border: 2px solid #673ab7;
+        border-radius: 8px;
+        padding: 12px 18px;
+        margin: 15px 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      /* Tarjetas de Ofertas Activas */
+      .trade-card {
+        background: white;
+        border-radius: 8px;
+        padding: 14px;
+        margin-bottom: 12px;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+        border-left: 5px solid #673ab7;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 12px;
+      }
+      .trade-card.for-me { border-left-color: #ff9800; background: #fffdf7; }
+      .trade-actions button { padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; margin-left: 5px; }
+      .btn-accept { background: #4CAF50; color: white; }
+      .btn-reject { background: #f44336; color: white; }
+      .btn-counter { background: #ff9800; color: white; }
     </style>
   </head>
   <body>
@@ -87,7 +150,13 @@
           <button id="btn-create-room" style="padding: 10px; background: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer;">Crear nueva sala</button>
           <button id="btn-join-room" style="padding: 10px; background: #2196F3; color: white; border: none; border-radius: 4px; cursor: pointer;">Unirse a sala</button>
         </div>
-        <button id="btn-logout" style="padding: 5px 10px; font-size: 12px; cursor: pointer; color: red;">Cerrar sesión</button>
+        <div style="text-align: left; margin: 15px 0;">
+          <h4 style="margin: 0 0 8px 0; color: #555;">Mis Salas</h4>
+          <div id="my-rooms-list" style="display: flex; flex-direction: column; gap: 8px;">
+            <small style="color: #888;">Cargando salas...</small>
+          </div>
+        </div>
+        <!-- <button id="btn-logout" style="padding: 5px 10px; font-size: 12px; cursor: pointer; color: red;">Cerrar sesión</button> -->
       </div>
 
       <!-- SECCIÓN 3: Dentro de la Sala (Kanban + Ofertas) -->
@@ -134,15 +203,23 @@
 
         <hr style="margin: 25px 0; border: none; border-top: 2px solid #ddd;">
 
-        <!-- ZONA INFERIOR: CONTROLES DE OFERTA Y LISTA (Siguiente paso) -->
+      <!-- BARRA DE MODO OFERTA (oculta por defecto) -->
+        <div id="trade-builder-bar" class="hidden">
+          <div id="trade-step-text" style="font-weight: bold; color: #4527a0;"></div>
+          <div>
+            <button id="btn-trade-next" style="padding: 8px 16px; background: #673ab7; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">Siguiente</button>
+            <button id="btn-trade-cancel" style="padding: 8px 12px; background: #ccc; border: none; border-radius: 4px; cursor: pointer; margin-left: 6px;">Cancelar</button>
+          </div>
+        </div>
+
+        <!-- ZONA INFERIOR: CONTROLES DE OFERTA Y LISTA -->
         <div id="trade-section" style="text-align: left;">
           <button id="btn-new-trade" style="padding: 12px 24px; background: #673ab7; color: white; border: none; border-radius: 6px; font-size: 16px; cursor: pointer; font-weight: bold;">
             🤝 Nueva Oferta
           </button>
           <h3>Ofertas Activas en la Sala</h3>
-          <div id="trades-list" style="color: #666;">No hay ofertas todavía.</div>
+          <div id="trades-list" style="color: #666;">No hay ofertas activas todavía.</div>
         </div>
-      </div>
 
     </div>
     <script type="module" src="/src/main.js"></script>
