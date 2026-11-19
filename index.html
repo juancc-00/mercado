@@ -4,42 +4,144 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Mercado de Intercambios</title>
+    <style>
+      body { font-family: sans-serif; margin: 0; padding: 20px; background: #f5f7fa; color: #333; }
+      .hidden { display: none !important; }
+      
+      /* Kanban Board */
+      #kanban-board {
+        display: flex;
+        gap: 16px;
+        overflow-x: auto;
+        padding: 15px 0;
+        align-items: flex-start;
+        min-height: 300px;
+      }
+      .kanban-column {
+        background: #ebecf0;
+        border-radius: 8px;
+        width: 280px;
+        min-width: 280px;
+        padding: 12px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+      }
+      .kanban-column.my-column {
+        background: #fff3e0;
+        border: 2px solid #ff9800;
+      }
+      .kanban-column h3 {
+        margin: 0 0 12px 0;
+        font-size: 16px;
+        border-bottom: 1px solid rgba(0,0,0,0.1);
+        padding-bottom: 8px;
+      }
+
+      /* Cards de Items */
+      .item-card {
+        position: relative;
+        background: white;
+        border-radius: 6px;
+        padding: 12px;
+        margin-bottom: 10px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+        text-align: left;
+      }
+      .item-card h4 { margin: 0 0 4px 0; font-size: 15px; }
+      .item-meta { font-size: 12px; color: #666; margin-bottom: 8px; }
+      .item-badges { display: flex; justify-content: space-between; font-size: 12px; font-weight: bold; }
+      .badge-rating { background: #e3f2fd; color: #1565c0; padding: 2px 6px; border-radius: 4px; }
+      .badge-vendo { background: #ffebee; color: #c62828; padding: 2px 6px; border-radius: 4px; }
+      .badge-neutral { background: #eeeeee; color: #424242; padding: 2px 6px; border-radius: 4px; }
+      .badge-compro { background: #e8f5e9; color: #2e7d32; padding: 2px 6px; border-radius: 4px; }
+
+      /* Formulario Añadir Item */
+      #add-item-box {
+        background: white;
+        padding: 15px;
+        border-radius: 8px;
+        margin: 15px 0;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        text-align: left;
+      }
+      .form-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
+      .form-row input[type="text"] { flex: 1; padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
+      .slider-group { flex: 1; min-width: 200px; background: #f9f9f9; padding: 8px; border-radius: 4px; }
+      .slider-group input[type="range"] { width: 100%; }
+    </style>
   </head>
   <body>
-    <div style="text-align: center; margin-top: 50px; font-family: sans-serif;">
+    <div style="max-width: 1200px; margin: 0 auto; text-align: center;">
       <h1>Mercado de Intercambios</h1>
       
-      <!-- SECCIÓN 1: Visitante (No logueado) -->
+      <!-- SECCIÓN 1: Login -->
       <div id="login-section">
         <button id="btn-login" style="padding: 10px 20px; font-size: 16px; cursor: pointer;">
           Entrar con Google
         </button>
       </div>
 
-      <!-- SECCIÓN 2: Usuario (Menú principal) -->
-      <div id="user-panel" style="display: none; background: #f4f4f4; padding: 20px; border-radius: 8px; max-width: 400px; margin: 0 auto;">
+      <!-- SECCIÓN 2: Menú principal -->
+      <div id="user-panel" class="hidden" style="background: white; padding: 20px; border-radius: 8px; max-width: 400px; margin: 0 auto; box-shadow: 0 2px 6px rgba(0,0,0,0.1);">
         <h2 id="user-name"></h2>
-        
         <div style="margin: 20px 0;">
-          <button id="btn-create-room" style="padding: 10px; background: #4CAF50; color: white; border: none; cursor: pointer;">Crear nueva sala</button>
-          <button id="btn-join-room" style="padding: 10px; background: #2196F3; color: white; border: none; cursor: pointer;">Unirse a sala</button>
+          <button id="btn-create-room" style="padding: 10px; background: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer;">Crear nueva sala</button>
+          <button id="btn-join-room" style="padding: 10px; background: #2196F3; color: white; border: none; border-radius: 4px; cursor: pointer;">Unirse a sala</button>
         </div>
-
-        <button id="btn-logout" style="padding: 5px 10px; font-size: 12px; cursor: pointer; color: red;">
-          Cerrar sesión
-        </button>
+        <button id="btn-logout" style="padding: 5px 10px; font-size: 12px; cursor: pointer; color: red;">Cerrar sesión</button>
       </div>
 
-      <!-- SECCIÓN 3: Dentro de la Sala -->
-      <div id="room-panel" style="display: none; background: #e3f2fd; padding: 20px; border-radius: 8px; max-width: 600px; margin: 0 auto;">
-        <button id="btn-leave-room" style="float: right; cursor: pointer; padding: 5px; color: #555;">Salir al menú</button>
-        <h2 id="room-title">Sala: ...</h2>
-        <p>Código de invitación: <strong id="room-code-display" style="font-size: 1.2em; background: #fff; padding: 5px; border-radius: 4px;"></strong></p>
-        <hr style="border: 1px solid #bbdefb; margin: 20px 0;">
-        
-        <!-- En el futuro, aquí irán los productos -->
-        <h3>Mi Stand</h3>
-        <button disabled style="padding: 8px;">Añadir Producto (Próximamente...)</button>
+      <!-- SECCIÓN 3: Dentro de la Sala (Kanban + Ofertas) -->
+      <div id="room-panel" class="hidden">
+        <div style="display: flex; justify-content: space-between; align-items: center; background: white; padding: 12px 20px; border-radius: 8px;">
+          <div style="text-align: left;">
+            <h2 id="room-title" style="margin: 0;">Sala: ...</h2>
+            <small>Código: <strong id="room-code-display" style="background: #eee; padding: 2px 6px; border-radius: 4px;"></strong></small>
+          </div>
+          <div>
+            <button id="btn-toggle-add-item" style="padding: 8px 14px; background: #ff9800; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">+ Subir Item</button>
+            <button id="btn-leave-room" style="padding: 8px 12px; cursor: pointer; margin-left: 8px;">Salir</button>
+          </div>
+        </div>
+
+        <!-- Formulario desplegable para subir item -->
+        <div id="add-item-box" class="hidden">
+          <h3 style="margin-top: 0;">Nuevo producto para mi puesto</h3>
+          <form id="form-add-item">
+            <div class="form-row">
+              <input type="text" id="item-titulo" placeholder="Título (ej. Jamón Ibérico)" required>
+              <input type="text" id="item-marca" placeholder="Marca (ej. 5 Jotas)" required>
+              <input type="text" id="item-peso" placeholder="Peso/Cantidad (ej. 200g)" required>
+            </div>
+            <div class="form-row">
+              <div class="slider-group">
+                <label>Valoración: <strong id="val-display">5</strong> / 10</label>
+                <input type="range" id="item-valoracion" min="1" max="10" value="5">
+              </div>
+              <div class="slider-group">
+                <label>Interés: <strong id="int-display">0 (Neutral)</strong></label>
+                <input type="range" id="item-interes" min="-5" max="5" value="0">
+              </div>
+            </div>
+            <button type="submit" style="padding: 8px 16px; background: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer;">Guardar en mi puesto</button>
+            <button type="button" id="btn-cancel-add" style="padding: 8px 12px; cursor: pointer;">Cancelar</button>
+          </form>
+        </div>
+
+        <!-- ZONA SUPERIOR: KANBAN BOARD -->
+        <div id="kanban-board">
+          <!-- Aquí se pintan las columnas de cada usuario -->
+        </div>
+
+        <hr style="margin: 25px 0; border: none; border-top: 2px solid #ddd;">
+
+        <!-- ZONA INFERIOR: CONTROLES DE OFERTA Y LISTA (Siguiente paso) -->
+        <div id="trade-section" style="text-align: left;">
+          <button id="btn-new-trade" style="padding: 12px 24px; background: #673ab7; color: white; border: none; border-radius: 6px; font-size: 16px; cursor: pointer; font-weight: bold;">
+            🤝 Nueva Oferta
+          </button>
+          <h3>Ofertas Activas en la Sala</h3>
+          <div id="trades-list" style="color: #666;">No hay ofertas todavía.</div>
+        </div>
       </div>
 
     </div>
